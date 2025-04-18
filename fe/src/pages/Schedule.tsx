@@ -17,8 +17,11 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import CloseIcon from "@mui/icons-material/Close";
 import api from "../hooks/api";
 import { jwtDecode } from "jwt-decode";
-
 import "dayjs/locale/ko";
+import { useNavigate } from "react-router-dom";
+import { getCustomWeek } from "../utils/common"; // dateUtils에서 가져옴
+
+dayjs.locale("ko");
 
 type DaySchedule = {
   date: Dayjs;
@@ -33,35 +36,44 @@ type TokenPayload = {
 
 const STORAGE_KEY = "custom-week-schedule";
 
-const getCustomWeek = (anchor: Dayjs): DaySchedule[] => {
-  const start = anchor.startOf("day");
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = start.add(i, "day");
-    return { date: d, time: null };
-  });
-};
-
 const WeekSchedule: React.FC = () => {
   const [anchorDate, setAnchorDate] = useState<Dayjs>(() => dayjs());
-  const [week, setWeek] = useState<DaySchedule[]>(getCustomWeek(dayjs()));
+  const [week, setWeek] = useState<DaySchedule[]>([]); // 배열로 정의
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const navigate = useNavigate();
 
+  // 주어진 날짜에서 수요일부터 시작하는 날짜와 그 다음주 화요일까지 계산
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const { week, startDate, endDate } = getCustomWeek(anchorDate); // 유틸리티 함수 사용
+    setWeek(week);
+    setStartDate(startDate);
+    setEndDate(endDate);
+  }, [anchorDate]);
+
+  // 서버에서 받은 데이터를 `week`에 반영
+  useEffect(() => {
+    const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
 
       try {
         const decoded = jwtDecode<TokenPayload>(token);
         const username = decoded.username || decoded.sub || "익명";
-        const res = await api.get(`/api/schedule?user=${username}`);
+        const res = await api.get(
+          `/api/schedule?user=${username}&startDate=${startDate?.format(
+            "YYYY-MM-DD"
+          )}&endDate=${endDate?.format("YYYY-MM-DD")}`
+        );
 
-        const loadedWeek: DaySchedule[] = getCustomWeek(dayjs()).map((d) => {
-          const found = res.data.schedule.find(
+        // 서버에서 받은 데이터 반영
+        const loadedWeek: DaySchedule[] = week.map((d) => {
+          const found = res.data.find(
             (item: any) => item.date === d.date.format("YYYY-MM-DD")
           );
           return {
             date: d.date,
-            time: found ? dayjs(`${found.date}T${found.time}`) : null,
+            time: found ? dayjs(`${found.date}T${found.time}`) : null, // 서버에서 받은 시간 설정
           };
         });
 
@@ -71,23 +83,25 @@ const WeekSchedule: React.FC = () => {
       }
     };
 
-    fetchInitialData();
-  }, []);
+    if (startDate && endDate) {
+      fetchData();
+    }
+  }, [startDate, endDate]);
 
+  // 날짜가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    const payload = {
-      anchor: anchorDate.toISOString(),
-      items: week.map((w) => ({
-        date: w.date.toISOString(),
-        time: w.time ? w.time.toISOString() : null,
-      })),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [week, anchorDate]);
-
-  useEffect(() => {
-    setWeek(getCustomWeek(anchorDate));
-  }, [anchorDate]);
+    if (startDate && endDate) {
+      const payload = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        items: week.map((w) => ({
+          date: w.date.toISOString(),
+          time: w.time ? w.time.toISOString() : null,
+        })),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+  }, [week, startDate, endDate]);
 
   const handleTimeChange = (index: number, value: Dayjs | null) => {
     setWeek((prev) =>
@@ -124,6 +138,7 @@ const WeekSchedule: React.FC = () => {
     try {
       await api.post("/api/schedule", payload);
       alert("제출 성공!");
+      navigate("/", { replace: true });
     } catch (err: any) {
       alert("제출 실패: " + (err.response?.data?.message || err.message));
     }
@@ -159,6 +174,8 @@ const WeekSchedule: React.FC = () => {
                       label={d.date.format("MM/DD (ddd)")}
                       value={d.time}
                       onChange={(val) => handleTimeChange(idx, val)}
+                      minutesStep={30}
+                      views={["hours"]}
                       slotProps={{
                         textField: {
                           fullWidth: true,
@@ -168,6 +185,9 @@ const WeekSchedule: React.FC = () => {
                             backgroundColor: "#f9f9f9",
                             borderRadius: 1,
                             fontSize: 13,
+                          },
+                          InputProps: {
+                            disabled: true,
                           },
                         },
                       }}
@@ -196,7 +216,7 @@ const WeekSchedule: React.FC = () => {
                     >
                       <Typography variant="body2">
                         {d.date.format("YYYY년 MM월 DD일 (ddd)")}{" "}
-                        {d.time!.format("A hh시")}
+                        {d.time!.format("A h시")}
                       </Typography>
                       <IconButton
                         size="small"
@@ -209,10 +229,9 @@ const WeekSchedule: React.FC = () => {
                 )}
               </Stack>
 
-              {/* 제출 버튼 */}
               <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                 <Button variant="contained" onClick={handleSubmit}>
-                  제출
+                  저장
                 </Button>
               </Box>
             </Box>

@@ -1,6 +1,7 @@
 package com.aisg.devlogix.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.aisg.devlogix.dto.ScheduleDTO;
 import com.aisg.devlogix.dto.ScheduleEntry;
+import com.aisg.devlogix.mapper.ScheduleMapper;
 import com.aisg.devlogix.model.Schedule;
 import com.aisg.devlogix.repository.ScheduleRepository;
 
@@ -17,6 +19,14 @@ import jakarta.transaction.Transactional;
 public class ScheduleService {
     @Autowired
     ScheduleRepository scheduleRepository;
+
+    private final ScheduleMapper scheduleMapper;
+
+    @Autowired
+    public ScheduleService(ScheduleMapper scheduleMapper) {
+        this.scheduleMapper = scheduleMapper;
+    }
+
 
     @Transactional
     public void addSchedule(ScheduleDTO dto) {
@@ -48,13 +58,18 @@ public class ScheduleService {
         }
     }
 
-    public ScheduleDTO getSchedule(String user) {
-        List<Schedule> list = scheduleRepository.findByUser(user);
+    // public ScheduleDTO getSchedule(String user) {
+    //     List<Schedule> list = scheduleRepository.findScheduleByUser(user);
 
-        List<ScheduleEntry> entries = list.stream().map(s ->
-            new ScheduleEntry(s.getDate(), s.getTime())
-        ).toList();
+    //     List<ScheduleEntry> entries = list.stream().map(s ->
+    //         new ScheduleEntry(s.getDate(), s.getTime())
+    //     ).toList();
 
-        return new ScheduleDTO(user, entries);
+    //     return new ScheduleDTO(user, entries);
+    // }
+
+    public List<Map<String, Object>> getSchedule(String user, String startDate, String endDate) {
+        List<Map<String, Object>> list = scheduleMapper.getAllSchedule(user, startDate, endDate);
+        return list;
     }
 }
