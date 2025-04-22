@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/java,react
-# Edit at https://www.toptal.com/developers/gitignore?templates=java,react
+# Created by https://www.toptal.com/developers/gitignore/api/java,windows,gradle,visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=java,windows,gradle,visualstudiocode
 
 ### Java ###
 # Compiled class file
@@ -27,20 +27,76 @@
 hs_err_pid*
 replay_pid*
 
-### react ###
-.DS_*
-logs
-**/*.backup.*
-**/*.back.*
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
 
-node_modules
-bower_components
-.vscode
+# Local History for Visual Studio Code
+.history/
 
-*.sublime*
+# Built Visual Studio Code Extensions
+*.vsix
 
-psd
-thumb
-sketch
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/java,react
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+# Eclipse Gradle plugin generated files
+# Eclipse Core
+.project
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+### Gradle Patch ###
+# Java heap dump
+*.hprof
+
+# End of https://www.toptal.com/developers/gitignore/api/java,windows,gradle,visualstudiocode
