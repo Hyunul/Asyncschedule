@@ -1,0 +1,70 @@
+# name: Java CI with Gradle
+
+# on:
+#   push:
+#     branches: [ "develop" ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
+
+#       - name: Set up JDK 17
+#         uses: actions/setup-java@v3
+#         with:
+#           java-version: '17'
+#           distribution: 'temurin'
+
+#       - name: Copy Secret
+#         env:
+#           OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET }}
+#           OCCUPY_SECRET_DIR: src/main/resources
+#           OCCUPY_SECRET_DIR_FILE_NAME: application-secret.yml
+#         run: |
+#           echo "$OCCUPY_SECRET" | base64 --decode > "$OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME"
+
+#       - name: Make gradlew executable
+#         run: chmod +x gradlew
+
+#       - name: Gradle Caching
+#         uses: actions/cache@v3
+#         with:
+#           path: |
+#             ~/.gradle/caches
+#             ~/.gradle/wrapper
+#           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+#           restore-keys: |
+#             ${{ runner.os }}-gradle-
+
+#       - name: Build Spring Boot Application
+#         run: ./gradlew clean build --exclude-task test
+
+#       - name: Build Docker Image
+#         run: docker build -t yourdockerhubusername/yourimage .
+
+#       - name: DockerHub Login
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       - name: Push Docker Image
+#         run: docker push yourdockerhubusername/yourimage
+
+#       - name: Deploy to Personal Server via SSH
+#         uses: appleboy/ssh-action@v0.1.6
+#         with:
+#           host: ${{ secrets.SERVER_HOST }}
+#           username: ${{ secrets.SERVER_USERNAME }}
+#           password: ${{ secrets.SERVER_PASSWORD }}
+#           port: ${{ secrets.SERVER_SSH_PORT }}
+#           timeout: 60s
+#           script: |
+#             docker stop your-container || true
+#             docker rm your-container || true
+#             docker rmi yourdockerhubusername/yourimage || true
+#             docker pull yourdockerhubusername/yourimage
+#             docker run -it -d -p 8080:8080 --name your-container yourdockerhubusername/yourimage
