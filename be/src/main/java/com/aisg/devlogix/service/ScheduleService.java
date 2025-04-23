@@ -17,16 +17,8 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class ScheduleService {
-    @Autowired
-    ScheduleRepository scheduleRepository;
-
-    private final ScheduleMapper scheduleMapper;
-
-    @Autowired
-    public ScheduleService(ScheduleMapper scheduleMapper) {
-        this.scheduleMapper = scheduleMapper;
-    }
-
+    @Autowired private ScheduleRepository scheduleRepository;
+    @Autowired private ScheduleMapper scheduleMapper;
 
     @Transactional
     public void addSchedule(ScheduleDTO dto) {
@@ -57,17 +49,7 @@ public class ScheduleService {
             }
         }
     }
-
-    // public ScheduleDTO getSchedule(String user) {
-    //     List<Schedule> list = scheduleRepository.findScheduleByUser(user);
-
-    //     List<ScheduleEntry> entries = list.stream().map(s ->
-    //         new ScheduleEntry(s.getDate(), s.getTime())
-    //     ).toList();
-
-    //     return new ScheduleDTO(user, entries);
-    // }
-
+    
     public List<Map<String, Object>> getSchedule(String user, String startDate, String endDate) {
         List<Map<String, Object>> list = scheduleMapper.getAllSchedule(user, startDate, endDate);
         return list;

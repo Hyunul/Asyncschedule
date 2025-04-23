@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-DevlogixApplication<be>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.aisg.devlogix.DevlogixApplication",
+      "projectName": "be",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

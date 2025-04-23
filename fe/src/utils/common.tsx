@@ -1,4 +1,4 @@
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 
 /**
  * 수요일부터 시작해서 다음주 화요일까지의 날짜를 계산하는 함수

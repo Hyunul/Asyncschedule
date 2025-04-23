@@ -1,44 +1,40 @@
 package com.aisg.devlogix.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.aisg.devlogix.exception.UserAlreadyExistsException;
 import com.aisg.devlogix.model.AuthenticationRequest;
 import com.aisg.devlogix.model.User;
 import com.aisg.devlogix.repository.UserRepository;
 import com.aisg.devlogix.service.CustomUserDetailsService;
 import com.aisg.devlogix.util.JwtUtil;
 
-import com.aisg.devlogix.exception.UserAlreadyExistsException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@Slf4j
 @RequestMapping("/api")
 public class AuthController {
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    @Autowired private AuthenticationManager authenticationManager;
+    @Autowired private CustomUserDetailsService userDetailsService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
@@ -49,7 +45,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
-
+        log.info("회원가입 성공 : {}", user);
         return ResponseEntity.ok("User registered successfully");
     }
 
@@ -68,6 +64,7 @@ public class AuthController {
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
 
+        log.info("로그인 성공 : {}", tokens);
         return tokens;
     }
 

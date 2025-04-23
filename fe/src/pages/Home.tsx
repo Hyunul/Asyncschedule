@@ -1,19 +1,19 @@
 // Home.tsx
-import {
-  Container,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-  CardActionArea,
-} from "@mui/material";
-import Grid from "@mui/material/Grid";         // ✅ default import
-import { Link } from "react-router-dom";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import EventIcon from "@mui/icons-material/Event";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import { getUserFromToken } from "../utils/jwt";
+import {
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  Typography,
+} from "@mui/material";
+import Grid from "@mui/material/Grid"; // ✅ default import
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { getUserFromToken } from "../utils/jwt";
 const featureCards = [
   {
     title: "대시보드",
@@ -35,7 +35,6 @@ const featureCards = [
   },
 ];
 
-
 const Home = () => {
   const [user, setUser] = useState<string | null>(() => getUserFromToken());
   return (
@@ -54,30 +53,32 @@ const Home = () => {
 
       {/* 기능 소개 카드 그리드 */}
       {user ? (
-      <Grid container spacing={3}>
-        {featureCards.map(({ title, subtitle, icon, to }) => (
-          <Grid size={{xs:12, sm:4}} key={title}>
-            <Card elevation={3}>
-              <CardActionArea
-                component={Link}
-                to={to}
-                sx={{ height: "100%", p: 3, textAlign: "center" }}
-              >
-                <Box sx={{ mb: 2 }}>{icon}</Box>
-                <Typography variant="h6" gutterBottom>
-                  {title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {subtitle}
-                </Typography>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-      ) : ""}
-  </Container>
-  )
+        <Grid container spacing={3}>
+          {featureCards.map(({ title, subtitle, icon, to }) => (
+            <Grid size={{ xs: 12, sm: 4 }} key={title}>
+              <Card elevation={3}>
+                <CardActionArea
+                  component={Link}
+                  to={to}
+                  sx={{ height: "100%", p: 3, textAlign: "center" }}
+                >
+                  <Box sx={{ mb: 2 }}>{icon}</Box>
+                  <Typography variant="h6" gutterBottom>
+                    {title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {subtitle}
+                  </Typography>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        ""
+      )}
+    </Container>
+  );
 };
 
 export default Home;

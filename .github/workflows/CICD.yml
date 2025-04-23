@@ -67,4 +67,4 @@
 #             docker rm your-container || true
 #             docker rmi yourdockerhubusername/yourimage || true
 #             docker pull yourdockerhubusername/yourimage
-#             docker run -it -d -p 8080:8080 --name your-container yourdockerhubusername/yourimage
+#             docker run -it -d -p 8000:8000 --name your-container yourdockerhubusername/yourimage

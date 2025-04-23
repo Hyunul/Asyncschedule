@@ -23,8 +23,9 @@ interface ErrorPayload {
 /* Axios 인스턴스                                      */
 /* -------------------------------------------------- */
 const api: AxiosInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://localhost:8000",
   headers: { "Content-Type": "application/json" },
+  withCredentials: true,
 });
 
 /* -------------------------------------------------- */
