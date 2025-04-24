@@ -78,4 +78,20 @@ public class JwtUtil {
         }
     }
 
+    public String generateInviteToken(String groupId) {
+        return Jwts.builder()
+                .claim("groupId", groupId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)) // 7일
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+
+    public String extractGroupId(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("groupId", String.class);
+    }
 }

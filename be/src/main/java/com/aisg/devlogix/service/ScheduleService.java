@@ -50,8 +50,8 @@ public class ScheduleService {
         }
     }
     
-    public List<Map<String, Object>> getSchedule(String user, String startDate, String endDate) {
-        List<Map<String, Object>> list = scheduleMapper.getAllSchedule(user, startDate, endDate);
+    public List<Map<String, Object>> getSchedule(String user, String startDate, String endDate, String gubun) {
+        List<Map<String, Object>> list = scheduleMapper.getAllSchedule(user, startDate, endDate , gubun);
         return list;
     }
 }

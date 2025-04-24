@@ -10,12 +10,11 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Schedule {
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+@AllArgsConstructor
+public class Group {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String user;
-    private String date;
-    private String time;
+    private String groupname;
+    private String ownername;
 }

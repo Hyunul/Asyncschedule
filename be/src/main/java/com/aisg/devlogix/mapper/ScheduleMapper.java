@@ -8,5 +8,5 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface ScheduleMapper {
-    List<Map<String, Object>> getAllSchedule(@Param("user") String user, @Param("startDate") String startDate, @Param("endDate") String endDate);
+    List<Map<String, Object>> getAllSchedule(@Param("user") String user, @Param("startDate") String startDate, @Param("endDate") String endDate, @Param("gubun") String gubun);
 }
