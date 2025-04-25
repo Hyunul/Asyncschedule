@@ -41,6 +41,7 @@ const Header = () => {
     setUser(null);
     handleUserClose();
     navigate("/", { replace: true });
+    window.location.reload();
   };
 
   return (

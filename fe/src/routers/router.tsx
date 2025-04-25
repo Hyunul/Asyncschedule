@@ -6,16 +6,18 @@ import Login from "../pages/Login";
 import SignUp from "../pages/SignUp";
 import Schedule from "../pages/Schedule";
 import Chart from "../pages/Chart";
+import Join from "../pages/Join";
 
 export const router = createBrowserRouter([
   {
-    element: <AppLayout />,    // 모든 페이지 공통 레이아웃
+    element: <AppLayout />, // 모든 페이지 공통 레이아웃
     children: [
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/SignUp", element: <SignUp /> },
-      { path: "/schedule", element: <Schedule/>},
-      { path: "/stats", element: <Chart />}
+      { path: "/schedule", element: <Schedule /> },
+      { path: "/stats", element: <Chart /> },
+      { path: "/joinGroup", element: <Join /> },
     ],
   },
 ]);

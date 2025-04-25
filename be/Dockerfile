@@ -15,10 +15,11 @@ RUN apt install -y openjdk-17-jdk
 # 프로젝트 jar 파일 복사
 # !!!jar 파일 이름 수정!!!
 COPY ../../../build/libs/devlogix-0.0.1-SNAPSHOT.jar /app/
+COPY .env .env
 
 # 작업 디렉토리 생성 및 이동
 WORKDIR /app
 
 # Spring Boot 애플리케이션 실행
 # !!!jar 파일 이름 수정!!!
-CMD ["java", "-jar", "-Dspring.profiles.active=dev8080", "/app/devlogix-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/app/devlogix-0.0.1-SNAPSHOT.jar"]

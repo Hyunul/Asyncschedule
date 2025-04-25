@@ -63,8 +63,9 @@ const WeekSchedule: React.FC = () => {
         const res = await api.get(
           `/api/schedule?user=${username}&startDate=${startDate?.format(
             "YYYY-MM-DD"
-          )}&endDate=${endDate?.format("YYYY-MM-DD")}`
+          )}&endDate=${endDate?.format("YYYY-MM-DD")}&gubun=s`
         );
+        console.log(res.data);
 
         // 서버에서 받은 데이터 반영
         const loadedWeek: DaySchedule[] = week.map((d) => {
@@ -138,6 +139,7 @@ const WeekSchedule: React.FC = () => {
     try {
       await api.post("/api/schedule", payload);
       alert("제출 성공!");
+      localStorage.removeItem(STORAGE_KEY);
       navigate("/", { replace: true });
     } catch (err: any) {
       alert("제출 실패: " + (err.response?.data?.message || err.message));

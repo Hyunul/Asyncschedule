@@ -32,7 +32,7 @@ public class GroupController {
     @GetMapping("/invite/{groupId}")
     public ResponseEntity<?> generateInvite(@PathVariable Long groupId) {
         String token = jwtUtil.generateInviteToken(String.valueOf(groupId));
-        String inviteLink = "http://localhost:3000/invite?token=" + token;
+        String inviteLink = "http://www.enfycius.com:3000/invite?token=" + token;
         return ResponseEntity.ok(inviteLink);
     }
 

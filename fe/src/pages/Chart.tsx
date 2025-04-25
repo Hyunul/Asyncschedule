@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -67,7 +67,7 @@ const options = {
     },
     title: {
       display: true,
-      text: `일정표 ( 기준일 : ${startDate})`,
+      text: `일정표`,
     },
   },
   responsive: true,
@@ -80,6 +80,7 @@ const Chart: React.FC = () => {
     datasets: any[];
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recom, setRecom] = useState<number>();
 
   useEffect(() => {
     (async () => {
@@ -103,12 +104,15 @@ const Chart: React.FC = () => {
           new Set(schedule.map((item) => item.user))
         ).sort();
 
-        // 1. 가장 큰 시간 값 찾기
-        const allTimes = schedule.map(({ time }) => {
-          const [h, m] = time.split(":").map(Number);
-          return h + m / 60;
-        });
-        const maxValue = Math.max(...allTimes);
+        const allTimesInRange = schedule
+          .map(({ time }) => {
+            const [h, m] = time.split(":").map(Number);
+            const value = h + m / 60;
+            return value;
+          })
+          .filter((value) => value >= 19 && value <= 21);
+        const maxValue = Math.max(...allTimesInRange);
+        setRecom(maxValue + 1);
 
         const datasets = users.map((user) => {
           const userData = labels.map((date) => {
@@ -158,15 +162,18 @@ const Chart: React.FC = () => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight={400}
+      minHeight={500}
     >
       {loading || !chartData ? (
         <CircularProgress />
       ) : (
-        <Box sx={{ width: "100%", maxWidth: 700, height: 400 }}>
+        <Box sx={{ width: "100%", maxWidth: 1000, height: 600 }}>
           <Bar options={options} data={chartData} />
         </Box>
       )}
+      {/* <Typography variant="h6" gutterBottom>
+        추천 요일 및 시간: {recom}시
+      </Typography> */}
     </Box>
   );
 };
