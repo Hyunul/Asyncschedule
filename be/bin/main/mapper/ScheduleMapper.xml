@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aisg.devlogix.mapper.ScheduleMapper">
+
+    <select id="getAllSchedule" resultType="java.util.Map">
+        SELECT * 
+          FROM schedule
+          <where>
+           AND date <![CDATA[>=]]> #{startDate}
+           AND date <![CDATA[<=]]> #{endDate}
+          <if test="gubun != null and gubun.equals('s')">
+           AND user = #{user}
+          </if>
+          </where>
+    </select>
+
+</mapper>

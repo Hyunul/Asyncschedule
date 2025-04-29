@@ -24,7 +24,7 @@ client.on(Events.MessageCreate, async (message) => {
     const username = parts[1];
 
     const res = await fetch(
-      `http://enfycius.com:8005/api/schedule/recom?user=${username}`
+      `http://211.188.61.143:8080/api/schedule/recom?user=${username}`
     );
 
     const text = await res.text();
@@ -34,7 +34,7 @@ client.on(Events.MessageCreate, async (message) => {
     }
 
     message.reply(
-      `@everyone\n 📋 추천 일정!!\n${text}\n👇 자세한 일정은 다음으로\nhttp://enfycius.com:3000`
+      `@everyone\n 📋 추천 일정!!\n${text}\n👇 자세한 일정은 다음으로\nhttp://211.188.61.143:3000`
     );
   }
 });
