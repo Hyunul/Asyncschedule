@@ -1,10 +1,9 @@
-// api.ts
 import axios, {
-  AxiosInstance,
   AxiosError,
+  AxiosInstance,
+  AxiosRequestHeaders,
   AxiosResponse,
   InternalAxiosRequestConfig,
-  AxiosRequestHeaders,
 } from "axios";
 
 /* -------------------------------------------------- */
@@ -23,7 +22,8 @@ interface ErrorPayload {
 /* Axios 인스턴스                                      */
 /* -------------------------------------------------- */
 const api: AxiosInstance = axios.create({
-  baseURL: "http://www.enfycius.com:8005",
+  baseURL: "http://www.hyunul.site:8080",
+  // baseURL: "http://localhost:8080",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
@@ -33,15 +33,11 @@ const api: AxiosInstance = axios.create({
 /* -------------------------------------------------- */
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    // ① headers 가 undefined 면 빈 객체로 만들어 두기
     const headers = (config.headers ||= {} as AxiosRequestHeaders);
 
     const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    if (accessToken && refreshToken) {
+    if (accessToken) {
       headers.Authorization = `Bearer ${accessToken}`;
-      headers.refreshToken = `Bearer ${refreshToken}`;
     }
 
     return config;
@@ -52,45 +48,63 @@ api.interceptors.request.use(
 /* -------------------------------------------------- */
 /* Response Interceptor                                */
 /* -------------------------------------------------- */
-// api.interceptors.response.use(
-//   (response: AxiosResponse): AxiosResponse => response,
-//   async (error: AxiosError<ErrorPayload>): Promise<AxiosResponse | never> => {
-//     const original = error.config as InternalAxiosRequestConfig & {
-//       _retry?: boolean;
-//     };
+api.interceptors.response.use(
+  (response: AxiosResponse): AxiosResponse => response,
+  async (error: AxiosError<ErrorPayload>): Promise<AxiosResponse | never> => {
+    const original = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-//     if (error.response?.status === 401 || error.response?.status === 403) {
-//       if (original._retry) return Promise.reject(error); // 재귀 요청 방지
-//       original._retry = true;
+    // 조건: 인증 오류 + 무한 루프 방지 플래그
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !original._retry
+    ) {
+      original._retry = true;
 
-//       const refreshToken = localStorage.getItem("refreshToken");
-//       if (!refreshToken) return Promise.reject(error);
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) return Promise.reject(error);
 
-//       try {
-//         // ② refreshToken을 사용하여 새로운 accessToken을 요청
-//         const { data } = await axios.post<TokenPair>(
-//           "/api/refresh-token",
-//           {},
-//           { headers: { Authorization: `Bearer ${refreshToken}` } }
-//         );
+      try {
+        // refresh 전용 인스턴스 (interceptor 미적용)
+        const refreshInstance = axios.create({
+          baseURL: "http://www.hyunul.site:8080",
+          // baseURL: "http://localhost:8080",
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        });
 
-//         // ③ 새로 받은 accessToken과 refreshToken을 로컬스토리지에 저장
-//         localStorage.setItem("accessToken", data.accessToken);
-//         localStorage.setItem("refreshToken", data.refreshToken);
+        const { data } = await refreshInstance.post<TokenPair>(
+          "/api/auth/refresh-token",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+            },
+          }
+        );
 
-//         // ④ 요청의 Authorization 헤더를 새 accessToken으로 업데이트
-//         (original.headers ||=
-//           {} as AxiosRequestHeaders).Authorization = `Bearer ${data.accessToken}`;
+        // 새 토큰 저장
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
 
-//         // ⑤ 토큰을 갱신하고 요청을 다시 전송
-//         return axios(original);
-//       } catch (err) {
-//         return Promise.reject(error);
-//       }
-//     }
+        // 요청 헤더에 새 accessToken 적용
+        (original.headers ||=
+          {} as AxiosRequestHeaders).Authorization = `Bearer ${data.accessToken}`;
 
-//     return Promise.reject(error);
-//   }
-// );
+        // 요청 재시도
+        return api(original);
+      } catch (refreshError) {
+        // 실패 시 토큰 초기화 및 로그아웃 등 처리
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login"; // 선택 사항
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default api;

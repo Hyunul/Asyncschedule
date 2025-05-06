@@ -7,6 +7,7 @@ import SignUp from "../pages/SignUp";
 import Schedule from "../pages/Schedule";
 import Chart from "../pages/Chart";
 import Join from "../pages/Join";
+import ProtectedRoute from "../components/ProtectRouter";
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +16,11 @@ export const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/SignUp", element: <SignUp /> },
+    ],
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
       { path: "/schedule", element: <Schedule /> },
       { path: "/stats", element: <Chart /> },
       { path: "/joinGroup", element: <Join /> },

@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class AuthController {
     @Autowired private AuthenticationManager authenticationManager;
     @Autowired private CustomUserDetailsService userDetailsService;

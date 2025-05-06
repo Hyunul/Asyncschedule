@@ -38,6 +38,7 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("custom-week-schedule");
     setUser(null);
     handleUserClose();
     navigate("/", { replace: true });

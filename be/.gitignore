@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java,windows,gradle,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,windows,gradle,visualstudiocode
 
+application-prod.properties
+
 .env
 
 ### Java ###

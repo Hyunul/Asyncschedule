@@ -7,13 +7,13 @@
     <select id="getAllSchedule" resultType="java.util.Map">
         SELECT * 
           FROM schedule
-          <where>
+        <where>
            AND date <![CDATA[>=]]> #{startDate}
            AND date <![CDATA[<=]]> #{endDate}
-          <if test="gubun != null and gubun.equals('s')">
-           AND user = #{user}
+          <if test='gubun != null and gubun == "s"'>
+            AND user = #{user}
           </if>
-          </where>
+        </where>
     </select>
 
 </mapper>

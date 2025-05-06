@@ -42,7 +42,7 @@ export default function SignUp() {
     setError(null);
 
     try {
-      await api.post("/api/register", form);
+      await api.post("/api/auth/register", form);
       alert("회원가입에 성공하였습니다.");
       navigate("/login", { replace: true });
     } catch (err: any) {
