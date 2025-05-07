@@ -14,3 +14,11 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
     restart: always
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    image: hyunul/async-bot:latest
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+    restart: always

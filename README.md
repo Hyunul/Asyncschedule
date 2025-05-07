@@ -1,87 +1,85 @@
 # Asyncschedule
 
-Asyncschedule는 팀원 간의 효율적인 일정 공유 및 모임 추천을 위한 **비동기 스케줄링 플랫폼**입니다. 사용자는 개인 근무 일정을 등록하고, 팀원들과 공유된 일정 차트에서 퇴근 시간이 겹치는 최적의 모임 시간을 자동으로 탐색할 수 있습니다. 또한, 추천된 일정은 Discord 봇을 통해 손쉽게 배포됩니다.
+**Asyncschedule**은 팀 간의 효율적인 일정 공유 및 협업을 위한 플랫폼입니다.  
+사용자는 개인 일정을 등록하고 팀원들과 공유하며, 공동의 일정을 조율할 수 있습니다.
 
-## 주요 기능
+---
 
-- **개인 일정 등록 및 공유**: 웹 UI에서 개인 근무 일정을 입력하고 팀원과 실시간으로 공유합니다.
-- **모임 시간 추천**: 직장인들의 퇴근 시간(일반적으로 오후 7시~9시)에 겹치는 일정을 자동으로 감지하여 차트에서 강조 표시합니다.
-- **Discord 봇 연동**: `!일정 <사용자명>` 명령어로 추천 일정을 Discord 채널에 배포하여 별도 확인 없이 모임을 관리할 수 있습니다.
-- **Docker Compose 기반 배포**: 백엔드, 프론트엔드, 봇 서비스를 한 번에 로컬 및 서버 환경에 쉽게 배포합니다.
+## 📌 주요 기능
 
-## 기술 스택
+- ✅ **일정 등록 및 수정**  
+  개인 일정을 쉽고 빠르게 생성하고 편집할 수 있습니다.
 
-- **Backend**: Java, Spring Boot, JPA
-- **Frontend**: React (Create React App), TypeScript
-- **Bot**: Node.js, Discord.js
-- **Deployment**: Docker, Docker Compose
+- 👥 **팀 일정 공유 및 동기화 (예정)**  
+  팀원과 일정을 공유하고 겹치는 일정 확인을 통해 모임 일정을 조율할 수 있습니다.
 
-## 아키텍처
+- 🔔 **알림 기능 (예정)**  
+  중요한 일정이 다가오면 알림을 받을 수 있도록 설계 예정입니다.
 
-```
-+----------------+        +-----------+        +-------------+
-|   Frontend     | <----> |  Backend  | <----> |  Database   |
-| (React + TS)   |  REST  | (Spring   |        | (JPA)       |
-+----------------+  API   | Boot)     |        +-------------+
-       |                      |
-       v                      v
- +-------------+         +-------------+
- |  Docker     |         |  Discord    |
- | Compose     |         |   Bot       |
- +-------------+         +-------------+
-```
+- 📅 **차트 UI 기반 일정 보기**  
+  주간 뷰를 제공하여 시각적으로 일정을 관리할 수 있습니다.
 
-## 설치 및 실행
+- 🤖 **봇 연동 (예: Discord 등)**  
+  외부 채팅 플랫폼과 연동되어 자동으로 일정 알림이나 요약을 제공합니다.
 
-1. 저장소를 클론합니다.
+## 🛠 기술 스택
 
-   ```bash
-   git clone https://github.com/Hyunul/Asyncschedule.git
-   cd Asyncschedule
-   ```
+- **Frontend**: TypeScript (React)
+- **Backend**: Java (Spring Boot)
+- **CI/CD**: GitHub Actions
+- **컨테이너 오케스트레이션**: Docker Compose
 
-2. 환경변수를 설정합니다.
+---
 
-   - 루트 디렉터리에 `.env` 파일을 생성하고, Discord 봇 토큰을 추가합니다.
-     ```ini
-     DISCORD_TOKEN=your_discord_bot_token
-     ```
-
-3. Docker Compose로 모든 서비스를 빌드하고 실행합니다.
-
-   ```bash
-   docker-compose up --build
-   ```
-
-4. 웹 브라우저에서 프론트엔드 애플리케이션을 확인합니다.
-
-   ```
-   http://localhost:3000
-   ```
-
-5. Discord 채널에서 `!일정 <username>` 명령어를 입력하여 추천 일정을 확인합니다.
-
-## 디렉터리 구조
+## 📁 프로젝트 구조
 
 ```
 Asyncschedule/
 ├── .github/              # GitHub Actions 워크플로우
-├── be/                   # Spring Boot 백엔드 소스 코드
-├── fe/                   # React 프론트엔드 소스 코드
-├── bot/                  # Discord 봇 소스 코드
-├── .gitignore
-├── docker-compose.yml
-└── README.md             # 프로젝트 소개 및 실행 가이드
+│   └── workflows/
+├── .vscode/              # VSCode 설정
+├── be/                   # 백엔드 (Spring Boot)
+├── fe/                   # 프론트엔드 (React 또는 기타)
+├── bot/                  # 봇 서비스 (선택 사항)
+├── docker-compose.yml    # 전체 서비스 구성
+└── README.md
 ```
 
-## 기여
+---
 
-1. Fork 이슈를 생성합니다.
-2. 브랜치를 분기(`feature/your-feature`)합니다.
-3. 변경사항을 커밋합니다.
-4. Pull Request를 생성하여 검토를 요청합니다.
+## 🚀 시작하기
 
-## 라이선스
+### 1. 백엔드 실행 (Spring Boot)
 
-이 프로젝트는 **BSD 3-Clause License** 하에 배포됩니다. 자세한 내용은 `be/LICENSE` 파일을 참고하세요.
+```bash
+cd be
+./gradlew bootRun
+```
 
+### 2. 프론트엔드 실행
+
+```bash
+cd fe
+npm install
+npm start
+```
+
+### 3. 전체 서비스 Docker Compose로 실행
+
+```bash
+docker-compose up --build
+```
+
+---
+
+## ⚙️ CI/CD
+
+- `main` 브랜치에 변경 사항(commit)이 감지되면 GitHub Actions에 의해 자동으로 빌드 및 배포를 수행합니다.
+- CI 설정은 `.github/workflows/` 폴더 내에 정의되어 있습니다.
+
+---
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스를 따릅니다.  
+자세한 내용은 `LICENSE` 파일을 참조하세요.
