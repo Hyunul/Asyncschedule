@@ -56,7 +56,12 @@ jobs:
           script: |
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker stop async-be || true
+            docker stop async-bot || true
             docker rm async-be || true
+            docker rm async-bot || true
             docker rmi hyunul/async-be || true
+            docker rmi hyunul/async-bot || true
             docker pull hyunul/async-be
+            docker pull hyunul/async-bot
             docker run -it -d -p 8080:8080 --name async-be hyunul/async-be
+            docker run -d --name async-bot hyunul/async-bot
