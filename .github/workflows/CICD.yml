@@ -22,7 +22,7 @@ jobs:
 
       # 4. Make gradlew executable
       - name: Make gradlew executable
-        run: chmod +x gradlew
+        run: chmod +x be/gradlew
 
       # 5. Build Docker image with Docker Compose
       - name: Docker Compose Build
