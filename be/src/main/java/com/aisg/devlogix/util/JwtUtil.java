@@ -41,7 +41,7 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
 
-        return createToken(claims, userDetails.getUsername(), 1000 * 10);
+        return createToken(claims, userDetails.getUsername(), 1000 * 60 * 60); // 1000 = 1초
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
@@ -49,7 +49,7 @@ public class JwtUtil {
 
         claims.put("type", "refresh");
 
-        return createToken(claims, userDetails.getUsername(), 1000 * 60 * 60 * 24 * 7);
+        return createToken(claims, userDetails.getUsername(), 1000 * 60 * 60 * 24 * 7); // 1주일
     }
 
     private String createToken(Map<String, Object> claims, String subject, long expirationTime) {

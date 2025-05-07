@@ -1,9 +1,10 @@
 // components/ProtectedRoute.tsx
 import { Navigate, Outlet } from "react-router-dom";
+import { getUserFromToken } from "../utils/jwt";
 
 const ProtectedRoute = () => {
-  const token = localStorage.getItem("accessToken");
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  const user = getUserFromToken();
+  return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

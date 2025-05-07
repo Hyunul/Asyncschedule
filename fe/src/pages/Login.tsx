@@ -70,7 +70,15 @@ const Login = () => {
           로그인
         </Typography>
 
-        <Box component="form" noValidate autoComplete="off">
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
           <Stack spacing={2}>
             <TextField
               fullWidth
@@ -91,7 +99,7 @@ const Login = () => {
             <Button
               fullWidth
               variant="contained"
-              onClick={handleLogin}
+              type="submit"
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : "로그인"}

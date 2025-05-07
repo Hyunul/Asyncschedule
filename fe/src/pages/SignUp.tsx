@@ -38,6 +38,31 @@ export default function SignUp() {
 
   /** 회원가입 버튼 클릭 */
   const handleSignUp = async () => {
+    // 빈칸 검사
+    if (!form.email || !form.password || !form.username) {
+      setError("이메일, 비밀번호, 닉네임을 모두 입력해주세요.");
+      return;
+    }
+
+    // 이메일 형식 검사
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(form.email)) {
+      setError("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    // 비밀번호 길이 검사
+    // if (form.password.length < 6) {
+    //   setError("비밀번호는 최소 6자 이상이어야 합니다.");
+    //   return;
+    // }
+
+    // 닉네임 길이 검사
+    if (form.username.length < 2) {
+      setError("닉네임은 최소 2자 이상이어야 합니다.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -61,7 +86,15 @@ export default function SignUp() {
           회원가입
         </Typography>
 
-        <Box component="form" noValidate autoComplete="off">
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSignUp();
+          }}
+        >
           <Stack spacing={2}>
             <TextField
               label="이메일"
@@ -89,7 +122,7 @@ export default function SignUp() {
             <Button
               fullWidth
               variant="contained"
-              onClick={handleSignUp}
+              type="submit"
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : "회원가입"}

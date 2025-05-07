@@ -11,32 +11,32 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid"; // ✅ default import
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getUserFromToken } from "../utils/jwt";
 const featureCards = [
   {
     title: "대시보드",
-    subtitle: "전체 현황을 한눈에!",
+    subtitle: "미구현 상황입니다.",
     icon: <DashboardIcon fontSize="large" />,
     to: "/dashboard",
   },
   {
     title: "일정 관리",
-    subtitle: "캘린더에서 스케줄 확인",
+    subtitle: "내 일정 추가하기",
     icon: <EventIcon fontSize="large" />,
     to: "/schedule",
   },
   {
     title: "통계",
-    subtitle: "데이터를 시각화하여 분석",
+    subtitle: "우리 모임 일정 확인하기",
     icon: <BarChartIcon fontSize="large" />,
     to: "/stats",
   },
 ];
 
 const Home = () => {
-  const [user, setUser] = useState<string | null>(() => getUserFromToken());
+  const user = getUserFromToken();
+
   return (
     <Container maxWidth="md" sx={{ mt: 8 }}>
       {/* 환영 카드 */}
@@ -46,7 +46,7 @@ const Home = () => {
             환영합니다!
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            이곳은 MUI 기반 로그인 예제입니다.
+            이곳은 모임 일정 추천 플랫폼, AsyncSchedule입니다!
           </Typography>
         </CardContent>
       </Card>

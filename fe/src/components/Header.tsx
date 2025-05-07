@@ -20,7 +20,16 @@ const Header = () => {
   const [user, setUser] = useState<string | null>(() => getUserFromToken());
   const navigate = useNavigate();
   const location = useLocation();
-  const syncUser = useCallback(() => setUser(getUserFromToken()), []);
+
+  const syncUser = useCallback(() => {
+    const currentUser = getUserFromToken();
+    if (currentUser === null) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("custom-week-schedule");
+    }
+    setUser(currentUser);
+  }, []);
 
   useEffect(syncUser, [location.pathname, syncUser]);
   useEffect(() => {
@@ -36,10 +45,14 @@ const Header = () => {
   const handleUserClose = () => setUserAnchor(null);
 
   const handleLogout = () => {
+    // localStorage에서 토큰 제거
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("custom-week-schedule");
-    setUser(null);
+
+    // 사용자 상태 동기화
+    syncUser();
+
     handleUserClose();
     navigate("/", { replace: true });
     window.location.reload();
@@ -55,7 +68,7 @@ const Header = () => {
           to="/"
           sx={{ textDecoration: "none", color: "inherit" }}
         >
-          My App
+          AsyncSchedule
         </Typography>
 
         {/* 오른쪽 영역 */}
