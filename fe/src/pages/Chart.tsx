@@ -32,7 +32,6 @@ const getColorForUser = (user: string): string => {
     return userColorMap.get(user)!;
   }
 
-  // 랜덤 RGBA 색상 생성
   const r = Math.floor(Math.random() * 156 + 100);
   const g = Math.floor(Math.random() * 156 + 100);
   const b = Math.floor(Math.random() * 156 + 100);
@@ -41,9 +40,7 @@ const getColorForUser = (user: string): string => {
   userColorMap.set(user, color);
   return color;
 };
-const { startDate, endDate } = getCustomWeek(dayjs());
 
-// 차트 옵션
 const options = {
   indexAxis: "y" as const,
   scales: {
@@ -79,14 +76,16 @@ const Chart: React.FC = () => {
     labels: string[];
     datasets: any[];
   } | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [recom, setRecom] = useState<number>();
+  const [recommendedTimes, setRecommendedTimes] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
       try {
         const username = getUserFromToken();
         const { startDate, endDate } = getCustomWeek(dayjs());
+
         const res = await api.get<
           { date: string; time: string; user: string }[]
         >(
@@ -104,32 +103,31 @@ const Chart: React.FC = () => {
           new Set(schedule.map((item) => item.user))
         ).sort();
 
-        const allTimesInRange = schedule
-          .map(({ time }) => {
-            const [h, m] = time.split(":").map(Number);
-            const value = h + m / 60;
-            return value;
-          })
-          .filter((value) => value >= 19 && value <= 21);
-        const maxValue = Math.max(...allTimesInRange);
-        setRecom(maxValue + 1);
+        const recommendedList: string[] = [];
 
         const datasets = users.map((user) => {
           const userData = labels.map((date) => {
             const entry = schedule.find(
               (item) => item.user === user && item.date === date
             );
+
             if (entry) {
               const [h, m] = entry.time.split(":").map(Number);
               const value = h + m / 60;
-              const isMax = value === maxValue;
+              const isRecommended = value >= 19 && value <= 21;
+
+              if (isRecommended) {
+                recommendedList.push(`${date} - ${user} (${entry.time})`);
+              }
+
               return {
                 x: date,
                 y: [0, value],
-                borderColor: isMax ? "rgba(255, 0, 0, 1)" : undefined,
-                borderWidth: isMax ? 2 : 0,
+                borderColor: isRecommended ? "rgba(255, 0, 0, 1)" : undefined,
+                borderWidth: isRecommended ? 2 : 0,
               };
             }
+
             return {
               x: date,
               y: [0, 0],
@@ -149,6 +147,8 @@ const Chart: React.FC = () => {
           labels,
           datasets,
         });
+
+        setRecommendedTimes(recommendedList);
       } catch (err) {
         console.error("데이터 로드 실패", err);
       } finally {
@@ -160,6 +160,7 @@ const Chart: React.FC = () => {
   return (
     <Box
       display="flex"
+      flexDirection="column"
       justifyContent="center"
       alignItems="center"
       minHeight={500}
@@ -167,13 +168,28 @@ const Chart: React.FC = () => {
       {loading || !chartData ? (
         <CircularProgress />
       ) : (
-        <Box sx={{ width: "100%", maxWidth: 1000, height: 600 }}>
-          <Bar options={options} data={chartData} />
-        </Box>
+        <>
+          <Box sx={{ width: "100%", maxWidth: 1000, height: 600 }}>
+            <Bar options={options} data={chartData} />
+          </Box>
+
+          {recommendedTimes.length > 0 && (
+            <Box
+              mt={4}
+              sx={{ textAlign: "left", width: "100%", maxWidth: 1000 }}
+            >
+              <Typography variant="h6" gutterBottom>
+                ✅ 추천 일정 시간대 (19~21시):
+              </Typography>
+              {recommendedTimes.map((item, idx) => (
+                <Typography key={idx} variant="body2">
+                  • {item}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </>
       )}
-      {/* <Typography variant="h6" gutterBottom>
-        추천 요일 및 시간: {recom}시
-      </Typography> */}
     </Box>
   );
 };

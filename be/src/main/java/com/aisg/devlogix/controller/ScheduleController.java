@@ -3,7 +3,7 @@ package com.aisg.devlogix.controller;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,41 +48,41 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedule/recom")
-    public ResponseEntity<String> getRecom(@RequestParam(required = false) String user, String gubun) {
-        List<Map<String, Object>> list = scheduleService.getSchedule(user, startDateStr, endDateStr, gubun);
+    public ResponseEntity<List<String>> getRecom(
+            @RequestParam(required = false) String user, String gubun) {
 
-        double maxTime = -1;
-        Map<String, Object> recomSchedule = null;
+        List<Map<String, Object>> list = scheduleService.getSchedule(user, startDateStr, endDateStr, gubun);
+        List<String> matchedTimes = new ArrayList<>();
 
         for (Map<String, Object> item : list) {
             String timeStr = (String) item.get("time");
-            if (timeStr != null) {
+            String dateStr = (String) item.get("date");
+
+            if (timeStr != null && dateStr != null) {
                 String[] parts = timeStr.split(":");
                 int hour = Integer.parseInt(parts[0]);
                 int minute = Integer.parseInt(parts[1]);
                 double timeVal = hour + (minute / 60.0);
 
-                if (timeVal >= 19 && timeVal <= 21 && timeVal > maxTime) {
-                    maxTime = timeVal;
-                    recomSchedule = new HashMap<>(item);
+                if (timeVal >= 19 && timeVal <= 21) {
+                    LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    DayOfWeek dayOfWeek = date.getDayOfWeek();
+                    String koreanDay = getKoreanDay(dayOfWeek);
+                    String hourStr = timeStr.split(":")[0];
+
+                    String message = String.format("%s (%s) %s시", dateStr, koreanDay, hourStr);
+                    matchedTimes.add(message);
                 }
             }
         }
 
-        if (recomSchedule != null) {
-            String dateStr = (String) recomSchedule.get("date");
-            String timeStr = (String) recomSchedule.get("time");
-            LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            String koreanDay = getKoreanDay(dayOfWeek);
-            String hourStr = timeStr.split(":")[0];
-    
-            String message = String.format("%s (%s) %s시", dateStr, koreanDay, hourStr);
-            return ResponseEntity.ok(message);
-        } else {
-            return ResponseEntity.ok("추천 시간이 없습니다.");
+        if (matchedTimes.isEmpty()) {
+            return ResponseEntity.ok(List.of("추천 시간이 없습니다."));
         }
+
+        return ResponseEntity.ok(matchedTimes);
     }
+
     
     private String getKoreanDay(DayOfWeek dayOfWeek) {
     return switch (dayOfWeek) {

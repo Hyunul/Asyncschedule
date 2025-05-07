@@ -52,7 +52,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Preflight 요청 허용
-                .requestMatchers("/", "/api/auth/**").permitAll()
+                .requestMatchers("/", "/api/auth/**", "/api/schedule/recom").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
