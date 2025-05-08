@@ -1,7 +1,10 @@
 package com.aisg.devlogix.controller;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +35,6 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     static WeekUtils.CustomWeek week = WeekUtils.getCustomWeek(LocalDate.now());
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    String startDateStr = week.startDate.format(formatter);
-    String endDateStr = week.endDate.format(formatter);
 
     @PostMapping("/schedule")
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,37 +44,48 @@ public class ScheduleController {
 
     @GetMapping("/schedule")
     public List<Map<String, Object>> getSchedule(@RequestParam String user, String gubun) {
-        return scheduleService.getSchedule(user, startDateStr, endDateStr, gubun);
+        return scheduleService.getSchedule(user, week.startDate, week.endDate, gubun);
     }
 
     @GetMapping("/schedule/recom")
     public ResponseEntity<List<String>> getRecom(
-            @RequestParam(required = false) String user, String gubun) {
+            @RequestParam(required = false) String user) {
 
-        List<Map<String, Object>> list = scheduleService.getSchedule(user, startDateStr, endDateStr, gubun);
-        List<String> matchedTimes = new ArrayList<>();
+        // 주어진 주(startDate ~ endDate) 내의 추천 일정을 가져옵니다.
+    List<Map<String, Object>> list = scheduleService.getRecom(week.startDate, week.endDate);
+    List<String> matchedTimes = new ArrayList<>();
 
-        for (Map<String, Object> item : list) {
-            String timeStr = (String) item.get("time");
-            String dateStr = (String) item.get("date");
+    // 시간 범위 설정: 19:00 ~ 21:00
+    LocalTime startTime = LocalTime.of(19, 0);
+    LocalTime endTime = LocalTime.of(21, 0);
 
-            if (timeStr != null && dateStr != null) {
-                String[] parts = timeStr.split(":");
-                int hour = Integer.parseInt(parts[0]);
-                int minute = Integer.parseInt(parts[1]);
-                double timeVal = hour + (minute / 60.0);
+    for (Map<String, Object> item : list) {
+        // `java.sql.Time`을 `LocalTime`으로 변환
+        Time timeSql = (Time) item.get("time");
+        Date dateSql = (Date) item.get("date");
 
-                if (timeVal >= 19 && timeVal <= 21) {
-                    LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    DayOfWeek dayOfWeek = date.getDayOfWeek();
-                    String koreanDay = getKoreanDay(dayOfWeek);
-                    String hourStr = timeStr.split(":")[0];
+        if (timeSql != null && dateSql != null) {
+            // `LocalTime`으로 변환
+            LocalTime time = timeSql.toLocalTime();
+            // `LocalDate`로 변환
+            LocalDate date = dateSql.toLocalDate();
 
-                    String message = String.format("%s (%s) %s시", dateStr, koreanDay, hourStr);
-                    matchedTimes.add(message);
-                }
+            // 시간 범위 필터링: 19:00 ~ 21:00 사이에 해당하는 시간만 필터링
+            if (!time.isBefore(startTime) && !time.isAfter(endTime)) {
+                DayOfWeek dayOfWeek = date.getDayOfWeek();
+                String koreanDay = getKoreanDay(dayOfWeek);
+
+                // 날짜 포맷팅
+                String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 시간 포맷팅
+                String formattedTime = time.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+
+                // 메시지 생성
+                String message = String.format("%s (%s) %s", formattedDate, koreanDay, formattedTime);
+                matchedTimes.add(message);
             }
         }
+    }
 
         if (matchedTimes.isEmpty()) {
             return ResponseEntity.ok(List.of("추천 시간이 없습니다."));

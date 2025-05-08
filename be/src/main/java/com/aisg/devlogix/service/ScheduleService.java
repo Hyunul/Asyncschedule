@@ -1,5 +1,7 @@
 package com.aisg.devlogix.service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,12 +27,12 @@ public class ScheduleService {
         String user = dto.getUser();
 
         for (ScheduleEntry entry : dto.getSchedule()) {
-            String date = entry.getDate();
-            String timeStr = entry.getTime();
+            LocalDate date = entry.getDate();
+            LocalTime timeStr = entry.getTime();
 
             Optional<Schedule> existing = scheduleRepository.findByUserAndDate(user, date);
 
-            if (timeStr == null || timeStr.isBlank()) {
+            if (timeStr == null) {
                 // ❌ time이 null → 기존 데이터가 있으면 삭제
                 existing.ifPresent(scheduleRepository::delete);
             } else {
@@ -50,8 +52,13 @@ public class ScheduleService {
         }
     }
     
-    public List<Map<String, Object>> getSchedule(String user, String startDate, String endDate, String gubun) {
+    public List<Map<String, Object>> getSchedule(String user, LocalDate startDate, LocalDate endDate, String gubun) {
         List<Map<String, Object>> list = scheduleMapper.getAllSchedule(user, startDate, endDate , gubun);
+        return list;
+    }
+
+    public List<Map<String, Object>> getRecom(LocalDate startDate, LocalDate endDate) {
+        List<Map<String, Object>> list = scheduleMapper.getRecomSchedule(startDate, endDate);
         return list;
     }
 }
