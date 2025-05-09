@@ -22,8 +22,8 @@ interface ErrorPayload {
 /* Axios 인스턴스                                      */
 /* -------------------------------------------------- */
 const api: AxiosInstance = axios.create({
-  // baseURL: "http://www.hyunul.site:8080",
-  baseURL: "http://localhost:8080",
+  baseURL: "http://www.hyunul.site:8080",
+  // baseURL: "http://localhost:8080",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
@@ -68,8 +68,8 @@ api.interceptors.response.use(
       try {
         // refresh 전용 인스턴스 (interceptor 미적용)
         const refreshInstance = axios.create({
-          // baseURL: "http://www.hyunul.site:8080",
-          baseURL: "http://localhost:8080",
+          baseURL: "http://www.hyunul.site:8080",
+          // baseURL: "http://localhost:8080",
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         });

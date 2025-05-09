@@ -78,7 +78,7 @@ public class ScheduleController {
                 // 날짜 포맷팅
                 String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 // 시간 포맷팅
-                String formattedTime = time.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                String formattedTime = time.format(DateTimeFormatter.ofPattern("HH시"));
 
                 // 메시지 생성
                 String message = String.format("%s (%s) %s", formattedDate, koreanDay, formattedTime);
@@ -97,13 +97,13 @@ public class ScheduleController {
     
     private String getKoreanDay(DayOfWeek dayOfWeek) {
     return switch (dayOfWeek) {
-        case MONDAY -> "월요일";
-        case TUESDAY -> "화요일";
-        case WEDNESDAY -> "수요일";
-        case THURSDAY -> "목요일";
-        case FRIDAY -> "금요일";
-        case SATURDAY -> "토요일";
-        case SUNDAY -> "일요일";
+        case MONDAY -> "월";
+        case TUESDAY -> "화";
+        case WEDNESDAY -> "수";
+        case THURSDAY -> "목";
+        case FRIDAY -> "금";
+        case SATURDAY -> "토";
+        case SUNDAY -> "일";
     };
 }
 }

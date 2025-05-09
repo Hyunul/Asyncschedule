@@ -17,7 +17,7 @@
     </select>
 
     <select id="getRecomSchedule" resultType="java.util.Map">
-        SELECT * 
+        SELECT distinct date, time 
           FROM schedule
         <where>
             AND date BETWEEN #{startDate} AND #{endDate}
