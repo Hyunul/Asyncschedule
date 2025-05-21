@@ -16,4 +16,13 @@
         </where>
     </select>
 
+    <select id="getRecomSchedule" resultType="java.util.Map">
+        SELECT distinct date, time 
+          FROM schedule
+        <where>
+            AND date BETWEEN #{startDate} AND #{endDate}
+            AND time BETWEEN '19:00:00' AND '21:00:00'
+        </where>
+    </select>
+
 </mapper>

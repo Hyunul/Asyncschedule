@@ -4,5 +4,6 @@
 <configuration>
 <mappers>
 <mapper resource="mapper/ScheduleMapper.xml"/>
+<mapper resource="mapper/UserMapper.xml"/>
 </mappers>
 </configuration>

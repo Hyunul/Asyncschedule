@@ -103,7 +103,9 @@ const Chart: React.FC = () => {
           new Set(schedule.map((item) => item.user))
         ).sort();
 
-        const recommendedList: string[] = [];
+        const test = await api.get("/api/schedule/recom");
+
+        const recommendedList = test.data;
 
         const datasets = users.map((user) => {
           const userData = labels.map((date) => {
@@ -115,10 +117,6 @@ const Chart: React.FC = () => {
               const [h, m] = entry.time.split(":").map(Number);
               const value = h + m / 60;
               const isRecommended = value >= 19 && value <= 21;
-
-              if (isRecommended) {
-                recommendedList.push(`${date} - ${user} (${entry.time})`);
-              }
 
               return {
                 x: date,

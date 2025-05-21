@@ -1,5 +1,8 @@
 package com.aisg.devlogix.model;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +19,6 @@ public class Schedule {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     private String user;
-    private String date;
-    private String time;
+    private LocalDate date;
+    private LocalTime time;
 }

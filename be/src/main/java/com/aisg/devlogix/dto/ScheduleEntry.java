@@ -1,5 +1,8 @@
 package com.aisg.devlogix.dto;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScheduleEntry {
-    private String date;
-    private String time;
+    private LocalDate date;
+    private LocalTime time;
 }
