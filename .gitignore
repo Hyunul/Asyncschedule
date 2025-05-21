@@ -4,6 +4,7 @@
 **/build/
 !src/**/build/
 
+build
 application-prod.properties
 
 .env
