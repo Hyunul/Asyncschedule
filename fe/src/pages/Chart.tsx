@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,7 +24,6 @@ import { getCustomWeek } from "../utils/common";
 import dayjs from "dayjs";
 import { getUserFromToken } from "../utils/jwt";
 
-// Chart.js 등록
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -31,12 +39,10 @@ const getColorForUser = (user: string): string => {
   if (userColorMap.has(user)) {
     return userColorMap.get(user)!;
   }
-
   const r = Math.floor(Math.random() * 156 + 100);
   const g = Math.floor(Math.random() * 156 + 100);
   const b = Math.floor(Math.random() * 156 + 100);
   const color = `rgba(${r}, ${g}, ${b}, 0.6)`;
-
   userColorMap.set(user, color);
   return color;
 };
@@ -76,84 +82,100 @@ const Chart: React.FC = () => {
     labels: string[];
     datasets: any[];
   } | null>(null);
-
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [recommendedTimes, setRecommendedTimes] = useState<string[]>([]);
+  const [groupList, setGroupList] = useState<string[]>([]); // 콤보박스 리스트
+  const [groupId, setGroupId] = useState<string>(""); // 선택된 group_id
 
   useEffect(() => {
+    // 초기 그룹 리스트 불러오기 (예시)
     (async () => {
       try {
         const username = getUserFromToken();
-        const { startDate, endDate } = getCustomWeek(dayjs());
-
-        const res = await api.get<
-          { date: string; time: string; user: string }[]
-        >(
-          `/api/schedule?user=${username}&startDate=${startDate.format(
-            "YYYY-MM-DD"
-          )}&endDate=${endDate.format("YYYY-MM-DD")}`
-        );
-        const schedule = res.data;
-
-        const labels = Array.from(
-          new Set(schedule.map((item) => item.date))
-        ).sort();
-
-        const users = Array.from(
-          new Set(schedule.map((item) => item.user))
-        ).sort();
-
-        const test = await api.get("/api/schedule/recom");
-
-        const recommendedList = test.data;
-
-        const datasets = users.map((user) => {
-          const userData = labels.map((date) => {
-            const entry = schedule.find(
-              (item) => item.user === user && item.date === date
-            );
-
-            if (entry) {
-              const [h, m] = entry.time.split(":").map(Number);
-              const value = h + m / 60;
-              const isRecommended = value >= 19 && value <= 21;
-
-              return {
-                x: date,
-                y: [0, value],
-                borderColor: isRecommended ? "rgba(255, 0, 0, 1)" : undefined,
-                borderWidth: isRecommended ? 2 : 0,
-              };
-            }
-
-            return {
-              x: date,
-              y: [0, 0],
-            };
-          });
-
-          return {
-            label: user,
-            data: userData.map((d) => d.y),
-            backgroundColor: getColorForUser(user),
-            borderColor: userData.map((d) => d.borderColor),
-            borderWidth: userData.map((d) => d.borderWidth),
-          };
-        });
-
-        setChartData({
-          labels,
-          datasets,
-        });
-
-        setRecommendedTimes(recommendedList);
+        const res = await api.get<string[]>(`/api/groups?user=${username}`);
+        setGroupList(res.data);
+        if (res.data.length > 0) setGroupId(res.data[0]);
       } catch (err) {
-        console.error("데이터 로드 실패", err);
-      } finally {
-        setLoading(false);
+        console.error("그룹 리스트 로드 실패", err);
       }
     })();
   }, []);
+
+  const loadChartData = async () => {
+    setLoading(true);
+    try {
+      const username = getUserFromToken();
+      const { startDate, endDate } = getCustomWeek(dayjs());
+
+      // groupId를 쿼리 파라미터에 포함
+      const res = await api.get<
+        { date: string; time: string; user: string }[]
+      >(
+        `/api/schedule?user=${username}&group_id=${groupId}&startDate=${startDate.format(
+          "YYYY-MM-DD"
+        )}&endDate=${endDate.format("YYYY-MM-DD")}`
+      );
+      const schedule = res.data;
+
+      const labels = Array.from(
+        new Set(schedule.map((item) => item.date))
+      ).sort();
+
+      const users = Array.from(
+        new Set(schedule.map((item) => item.user))
+      ).sort();
+
+      const recomRes = await api.get<string[]>("/api/schedule/recom");
+      const recommendedList = recomRes.data;
+
+      const datasets = users.map((user) => {
+        const userData = labels.map((date) => {
+          const entry = schedule.find(
+            (item) => item.user === user && item.date === date
+          );
+
+          if (entry) {
+            const [h, m] = entry.time.split(":").map(Number);
+            const value = h + m / 60;
+            const isRecommended = value >= 19 && value <= 21;
+
+            return {
+              x: date,
+              y: [0, value],
+              borderColor: isRecommended ? "rgba(255, 0, 0, 1)" : undefined,
+              borderWidth: isRecommended ? 2 : 0,
+            };
+          }
+
+          return {
+            x: date,
+            y: [0, 0],
+          };
+        });
+
+        return {
+          label: user,
+          data: userData.map((d) => d.y),
+          backgroundColor: getColorForUser(user),
+          borderColor: userData.map((d) => d.borderColor),
+          borderWidth: userData.map((d) => d.borderWidth),
+        };
+      });
+
+      setChartData({
+        labels,
+        datasets,
+      });
+
+      setRecommendedTimes(recommendedList);
+    } catch (err) {
+      console.error("데이터 로드 실패", err);
+      setChartData(null);
+      setRecommendedTimes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -162,10 +184,32 @@ const Chart: React.FC = () => {
       justifyContent="center"
       alignItems="center"
       minHeight={500}
+      gap={2}
     >
-      {loading || !chartData ? (
+      <Box display="flex" alignItems="center" gap={2}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel id="group-select-label">그룹 선택</InputLabel>
+          <Select
+            labelId="group-select-label"
+            value={groupId}
+            label="그룹 선택"
+            onChange={(e) => setGroupId(e.target.value)}
+          >
+            {groupList.map((group) => (
+              <MenuItem key={group} value={group}>
+                {group}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button variant="contained" onClick={loadChartData}>
+          검색
+        </Button>
+      </Box>
+
+      {loading ? (
         <CircularProgress />
-      ) : (
+      ) : chartData ? (
         <>
           <Box sx={{ width: "100%", maxWidth: 1000, height: 600 }}>
             <Bar options={options} data={chartData} />
@@ -187,6 +231,8 @@ const Chart: React.FC = () => {
             </Box>
           )}
         </>
+      ) : (
+        <Typography>검색 버튼을 눌러 데이터를 불러오세요.</Typography>
       )}
     </Box>
   );
