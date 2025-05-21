@@ -7,13 +7,22 @@
     <select id="getAllSchedule" resultType="java.util.Map">
         SELECT * 
           FROM schedule
-          <where>
+        <where>
            AND date <![CDATA[>=]]> #{startDate}
            AND date <![CDATA[<=]]> #{endDate}
-          <if test="gubun != null and gubun.equals('s')">
-           AND user = #{user}
+          <if test='gubun != null and gubun == "s"'>
+            AND user = #{user}
           </if>
-          </where>
+        </where>
+    </select>
+
+    <select id="getRecomSchedule" resultType="java.util.Map">
+        SELECT distinct date, time 
+          FROM schedule
+        <where>
+            AND date BETWEEN #{startDate} AND #{endDate}
+            AND time BETWEEN '19:00:00' AND '21:00:00'
+        </where>
     </select>
 
 </mapper>

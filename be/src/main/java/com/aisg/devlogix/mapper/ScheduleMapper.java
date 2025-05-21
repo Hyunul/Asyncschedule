@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.aisg.devlogix.dto.ScheduleRequest;
+
 @Mapper
 public interface ScheduleMapper {
-    List<Map<String, Object>> getAllSchedule(String user, LocalDate startDate, LocalDate endDate, String gubun);
+    List<Map<String, Object>> getAllSchedule(ScheduleRequest scheduleRequest);
 
     List<Map<String, Object>> getRecomSchedule(LocalDate startDate, LocalDate endDate);
 }

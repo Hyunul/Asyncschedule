@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aisg.devlogix.dto.ScheduleDTO;
+import com.aisg.devlogix.dto.ScheduleRequest;
 import com.aisg.devlogix.service.ScheduleService;
 import com.aisg.devlogix.util.WeekUtils;
 
@@ -43,8 +44,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedule")
-    public List<Map<String, Object>> getSchedule(@RequestParam String user, String gubun) {
-        return scheduleService.getSchedule(user, week.startDate, week.endDate, gubun);
+    public List<Map<String, Object>> getSchedule(ScheduleRequest scheduleRequest) {
+        return scheduleService.getSchedule(scheduleRequest);
     }
 
     @GetMapping("/schedule/recom")

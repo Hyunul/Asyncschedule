@@ -10,9 +10,7 @@ import com.aisg.devlogix.model.Schedule;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findScheduleByUser(String user);
-    
+    List<Schedule> findByUserAndDateIn(String user, List<LocalDate> dates);
     Optional<Schedule> findByUserAndDate(String user, LocalDate date);
-    
     void delete(Schedule schedule);
-
 }
