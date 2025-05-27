@@ -19,19 +19,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Schedule {
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-     // 사용자 연관관계 (Many schedules to one user)
+
+    private String title;
+    private LocalDate startTime;
+    private LocalTime endTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
-
-    // 그룹 연관관계 (Many schedules to one group)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
-
-    private LocalDate date;
-
-    private LocalTime time;
 }
