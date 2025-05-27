@@ -23,7 +23,6 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
     private LocalDate startTime;
     private LocalTime endTime;
 
