@@ -12,7 +12,7 @@ COPY . .
 RUN gradle bootJar -x test --no-daemon
 
 # 2단계: 실행 환경
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 VOLUME /tmp
 
