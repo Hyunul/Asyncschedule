@@ -1,24 +1,91 @@
 version: "3.8"
 
 services:
+  # 1. MySQL 데이터베이스
+  mysql:
+    image: mysql:8.0
+    container_name: async-mysql
+    ports:
+      - "3307:3306" # 호스트의 3307 포트를 컨테이너의 3306으로 연결 (기존 설정 유지)
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: test
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      TZ: Asia/Seoul
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # 2. Redis (캐시 서버)
+  redis:
+    image: redis:alpine
+    container_name: async-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # 3. 백엔드 (Spring Boot)
   async-be:
     build:
       context: ./be
       dockerfile: Dockerfile
-    image: hyunul/async-be:latest
+    container_name: async-be
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE= prod
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      # dev 프로필 활성화
+      SPRING_PROFILES_ACTIVE: dev
+      # Docker 내부 네트워크를 통해 서비스명(mysql, redis)으로 접속
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/test?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: always
+
+  # 4. 프론트엔드 (React)
+  fe:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile.dev
+    container_name: async-fe
+    ports:
+      - "3000:3000"
+    environment:
+      # 클라이언트 브라우저에서 접근하는 API 주소 (호스트 기준)
+      REACT_APP_API_URL: http://localhost:8080
+      # 핫 리로딩을 위한 설정 (선택 사항)
+      WATCHPACK_POLLING: "true"
+    stdin_open: true # React 앱 종료 방지
+    tty: true
+    depends_on:
+      - async-be
+    restart: always
+
+  # 5. Discord Bot
   bot:
     build:
       context: ./bot
       dockerfile: Dockerfile
-    image: hyunul/async-bot:latest
+    container_name: async-bot
     environment:
-      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      # .env 파일에서 토큰을 가져오거나 직접 입력 필요
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      API_URL: http://async-be:8080
+    depends_on:
+      - async-be
     restart: always
+
+volumes:
+  mysql_data:
