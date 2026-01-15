@@ -23,10 +23,8 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate startTime;
-    private LocalTime endTime;
+    private LocalDate date;
+    private LocalTime time;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String user;
 }

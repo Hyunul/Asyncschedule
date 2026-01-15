@@ -35,8 +35,6 @@ public class ScheduleController {
     @Autowired
     private ScheduleService scheduleService;
 
-    static WeekUtils.CustomWeek week = WeekUtils.getCustomWeek(LocalDate.now());
-
     @PostMapping("/schedule")
     @ResponseStatus(HttpStatus.CREATED)
     public void addSchedule(@RequestBody ScheduleDTO scheduleDTO) {
@@ -51,6 +49,8 @@ public class ScheduleController {
     @GetMapping("/schedule/recom")
     public ResponseEntity<List<String>> getRecom(
             @RequestParam(required = false) String user) {
+        
+        WeekUtils.CustomWeek week = WeekUtils.getCustomWeek(LocalDate.now());
 
         // 주어진 주(startDate ~ endDate) 내의 추천 일정을 가져옵니다.
     List<Map<String, Object>> list = scheduleService.getRecom(week.startDate, week.endDate);
