@@ -24,6 +24,8 @@ public class Group {
     private Long id;
 
     private String name;
+    
+    private String createdBy; // 생성자 (리더)
 
     @ManyToMany(mappedBy = "groups")
     private List<User> users = new ArrayList<>();

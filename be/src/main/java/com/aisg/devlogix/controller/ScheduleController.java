@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.aisg.devlogix.dto.ScheduleDTO;
 import com.aisg.devlogix.dto.ScheduleRequest;
@@ -28,8 +29,14 @@ import com.aisg.devlogix.util.WeekUtils;
 
 
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.sql.Timestamp;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class ScheduleController {
 
     @Autowired
@@ -42,36 +49,66 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedule")
-    public List<Map<String, Object>> getSchedule(ScheduleRequest scheduleRequest) {
+    public List<Map<String, Object>> getSchedule(@ModelAttribute ScheduleRequest scheduleRequest) {
         return scheduleService.getSchedule(scheduleRequest);
     }
 
     @GetMapping("/schedule/recom")
     public ResponseEntity<List<String>> getRecom(
-            @RequestParam(required = false) String user) {
+            @RequestParam(required = false) String user,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         
-        WeekUtils.CustomWeek week = WeekUtils.getCustomWeek(LocalDate.now());
+        LocalDate start, end;
+        if (startDate != null && endDate != null) {
+            start = startDate;
+            end = endDate;
+        } else {
+            WeekUtils.CustomWeek week = WeekUtils.getCustomWeek(LocalDate.now());
+            start = week.startDate;
+            end = week.endDate;
+        }
+
+        log.info("Requesting Recom Schedule for: {} ~ {}", start, end);
 
         // 주어진 주(startDate ~ endDate) 내의 추천 일정을 가져옵니다.
-    List<Map<String, Object>> list = scheduleService.getRecom(week.startDate, week.endDate);
-    List<String> matchedTimes = new ArrayList<>();
+        List<Map<String, Object>> list = scheduleService.getRecom(start, end);
+        log.info("Fetched {} items from service.", list.size());
+        
+        List<String> matchedTimes = new ArrayList<>();
 
-    // 시간 범위 설정: 19:00 ~ 21:00
-    LocalTime startTime = LocalTime.of(19, 0);
-    LocalTime endTime = LocalTime.of(21, 0);
+        // 시간 범위 설정: 19:00 ~ 21:00
+        LocalTime startTime = LocalTime.of(19, 0);
+        LocalTime endTime = LocalTime.of(21, 0);
 
-    for (Map<String, Object> item : list) {
-        // `java.sql.Time`을 `LocalTime`으로 변환
-        Time timeSql = (Time) item.get("time");
-        Date dateSql = (Date) item.get("date");
+        for (Map<String, Object> item : list) {
+            // Safely parse Time
+            Object timeObj = item.get("time");
+            LocalTime time = null;
+            if (timeObj instanceof Time) {
+                time = ((Time) timeObj).toLocalTime();
+            } else if (timeObj instanceof LocalTime) {
+                time = (LocalTime) timeObj;
+            } else if (timeObj instanceof String) {
+                time = LocalTime.parse((String) timeObj);
+            }
 
-        if (timeSql != null && dateSql != null) {
-            // `LocalTime`으로 변환
-            LocalTime time = timeSql.toLocalTime();
-            // `LocalDate`로 변환
-            LocalDate date = dateSql.toLocalDate();
+            // Safely parse Date
+            Object dateObj = item.get("date");
+            LocalDate date = null;
+            if (dateObj instanceof Date) {
+                date = ((Date) dateObj).toLocalDate();
+            } else if (dateObj instanceof LocalDate) {
+                date = (LocalDate) dateObj;
+            } else if (dateObj instanceof String) {
+                date = LocalDate.parse((String) dateObj);
+            } else if (dateObj instanceof Long) {
+                date = new Date((Long) dateObj).toLocalDate();
+            } else if (dateObj instanceof Timestamp) {
+                date = ((Timestamp) dateObj).toLocalDateTime().toLocalDate();
+            }
 
-            // 시간 범위 필터링: 19:00 ~ 21:00 사이에 해당하는 시간만 필터링
+            if (time != null && date != null) {            // 시간 범위 필터링: 19:00 ~ 21:00 사이에 해당하는 시간만 필터링
             if (!time.isBefore(startTime) && !time.isAfter(endTime)) {
                 DayOfWeek dayOfWeek = date.getDayOfWeek();
                 String koreanDay = getKoreanDay(dayOfWeek);

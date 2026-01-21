@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../hooks/api";
+import { showAlert } from "../utils/swal";
 
 const JoinPage = () => {
   const [searchParams] = useSearchParams();
@@ -11,12 +12,12 @@ const JoinPage = () => {
     if (token) {
       api
         .post("/api/group/join", { token })
-        .then(() => {
-          alert("그룹 참여 완료!");
-          navigate("/group/dashboard");
+        .then(async () => {
+          await showAlert("참여 완료", "그룹 참여 완료!", "success");
+          navigate("/schedule");
         })
-        .catch((err) => {
-          alert("유효하지 않은 초대입니다.");
+        .catch(async (err) => {
+          await showAlert("오류", "유효하지 않은 초대입니다.", "error");
           navigate("/");
         });
     }

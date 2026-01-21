@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
 import {
   Box,
-  CircularProgress,
-  Typography,
   Button,
-  Select,
-  MenuItem,
+  CircularProgress,
   FormControl,
   InputLabel,
+  MenuItem,
+  Select,
+  Typography
 } from "@mui/material";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
+import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import api from "../hooks/api";
 import { getCustomWeek } from "../utils/common";
-import dayjs from "dayjs";
 import { getUserFromToken } from "../utils/jwt";
 
 ChartJS.register(
@@ -32,6 +32,12 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+// 그룹 정보 타입 정의
+interface GroupInfo {
+  name: string;
+  createdBy: string;
+}
 
 const userColorMap = new Map<string, string>();
 
@@ -84,21 +90,26 @@ const Chart: React.FC = () => {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [recommendedTimes, setRecommendedTimes] = useState<string[]>([]);
-  const [groupList, setGroupList] = useState<string[]>([]); // 콤보박스 리스트
-  const [groupId, setGroupId] = useState<string>(""); // 선택된 group_id
+  
+  // 수정: groupList를 GroupInfo 배열로 변경
+  const [groupList, setGroupList] = useState<GroupInfo[]>([]); 
+  const [groupId, setGroupId] = useState<string>(""); // 선택된 그룹 이름
+
+  const fetchGroups = async () => {
+    try {
+      const username = getUserFromToken();
+      if (!username) return;
+      // 수정: 응답 타입을 GroupInfo[]로 변경
+      const res = await api.get<GroupInfo[]>(`/api/groups?user=${username}`);
+      setGroupList(res.data);
+      if (res.data.length > 0 && !groupId) setGroupId(res.data[0].name);
+    } catch (err) {
+      console.error("그룹 리스트 로드 실패", err);
+    }
+  };
 
   useEffect(() => {
-    // 초기 그룹 리스트 불러오기 (예시)
-    (async () => {
-      try {
-        const username = getUserFromToken();
-        const res = await api.get<string[]>(`/api/groups?user=${username}`);
-        setGroupList(res.data);
-        if (res.data.length > 0) setGroupId(res.data[0]);
-      } catch (err) {
-        console.error("그룹 리스트 로드 실패", err);
-      }
-    })();
+    fetchGroups();
   }, []);
 
   const loadChartData = async () => {
@@ -125,7 +136,7 @@ const Chart: React.FC = () => {
         new Set(schedule.map((item) => item.user))
       ).sort();
 
-      const recomRes = await api.get<string[]>("/api/schedule/recom");
+      const recomRes = await api.get<string[]>(`/api/schedule/recom?startDate=${startDate.format("YYYY-MM-DD")}&endDate=${endDate.format("YYYY-MM-DD")}`);
       const recommendedList = recomRes.data;
 
       const datasets = users.map((user) => {
@@ -181,12 +192,11 @@ const Chart: React.FC = () => {
     <Box
       display="flex"
       flexDirection="column"
-      justifyContent="center"
       alignItems="center"
-      minHeight={500}
-      gap={2}
+      sx={{ pt: 4, pb: 8, minHeight: "80vh" }}
+      gap={3}
     >
-      <Box display="flex" alignItems="center" gap={2}>
+      <Box display="flex" alignItems="center" gap={2} sx={{ mb: 2 }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel id="group-select-label">그룹 선택</InputLabel>
           <Select
@@ -195,9 +205,10 @@ const Chart: React.FC = () => {
             label="그룹 선택"
             onChange={(e) => setGroupId(e.target.value)}
           >
+            {/* 수정: group 객체의 name 프로퍼티 사용 */}
             {groupList.map((group) => (
-              <MenuItem key={group} value={group}>
-                {group}
+              <MenuItem key={group.name} value={group.name}>
+                {group.name}
               </MenuItem>
             ))}
           </Select>

@@ -5,13 +5,19 @@
 <mapper namespace="com.aisg.devlogix.mapper.ScheduleMapper">
 
     <select id="getAllSchedule" resultType="java.util.Map">
-        SELECT * 
-          FROM schedule
+        SELECT s.* 
+          FROM schedule s
+          LEFT JOIN user u ON s.user = u.username
+          LEFT JOIN user_group ug ON u.id = ug.user_id
+          LEFT JOIN group_table g ON ug.group_id = g.id
         <where>
-           AND date <![CDATA[>=]]> #{startDate}
-           AND date <![CDATA[<=]]> #{endDate}
+           AND s.date <![CDATA[>=]]> #{startDate}
+           AND s.date <![CDATA[<=]]> #{endDate}
           <if test='gubun != null and gubun == "s"'>
-            AND user = #{user}
+            AND s.user = #{user}
+          </if>
+          <if test='group_id != null and group_id != ""'>
+            AND g.name = #{group_id}
           </if>
         </where>
     </select>

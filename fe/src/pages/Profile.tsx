@@ -1,17 +1,16 @@
 import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
+  Alert,
+  Box,
   Button,
   CircularProgress,
-  Alert,
+  Container,
+  Paper,
   Stack,
-  Box,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import api from "../hooks/api";
-import { getUserFromToken } from "../utils/jwt";
 
 export default function Profile() {
   const [form, setForm] = useState({

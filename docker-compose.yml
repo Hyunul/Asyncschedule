@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   # 1. MySQL 데이터베이스
-  mysql:
+  db:
     image: mysql:8.0
     container_name: async-mysql
     ports:
@@ -40,15 +40,15 @@ services:
       - "8080:8080"
     environment:
       # dev 프로필 활성화
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: op
       # Docker 내부 네트워크를 통해 서비스명(mysql, redis)으로 접속
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/test?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/test?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
-      mysql:
+      db:
         condition: service_healthy
       redis:
         condition: service_started
@@ -58,7 +58,7 @@ services:
   fe:
     build:
       context: ./fe
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: async-fe
     ports:
       - "3000:3000"
@@ -67,6 +67,8 @@ services:
       REACT_APP_API_URL: http://localhost:8080
       # 핫 리로딩을 위한 설정 (선택 사항)
       WATCHPACK_POLLING: "true"
+      # Docker 외부 접속 허용
+      HOST: "0.0.0.0"
     stdin_open: true # React 앱 종료 방지
     tty: true
     depends_on:
@@ -74,18 +76,18 @@ services:
     restart: always
 
   # 5. Discord Bot
-  bot:
-    build:
-      context: ./bot
-      dockerfile: Dockerfile
-    container_name: async-bot
-    environment:
-      # .env 파일에서 토큰을 가져오거나 직접 입력 필요
-      DISCORD_TOKEN: ${DISCORD_TOKEN}
-      API_URL: http://async-be:8080
-    depends_on:
-      - async-be
-    restart: always
+  # bot:
+  #   build:
+  #     context: ./bot
+  #     dockerfile: Dockerfile
+  #   container_name: async-bot
+  #   environment:
+  #     # .env 파일에서 토큰을 가져오거나 직접 입력 필요
+  #     DISCORD_TOKEN: ${DISCORD_TOKEN}
+  #     API_URL: http://async-be:8080
+  #   depends_on:
+  #     - async-be
+  #   restart: always
 
 volumes:
   mysql_data:

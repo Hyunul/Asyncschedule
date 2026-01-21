@@ -37,7 +37,7 @@ public class ScheduleService {
         Map<LocalDate, Schedule> existingMap = scheduleRepository
             .findByUserAndDateIn(user, dates)
             .stream()
-            .collect(Collectors.toMap(Schedule::getDate, s -> s));
+            .collect(Collectors.toMap(Schedule::getDate, s -> s, (s1, s2) -> s1));
 
         List<Schedule> toSave = new ArrayList<>();
         List<Schedule> toDelete = new ArrayList<>();

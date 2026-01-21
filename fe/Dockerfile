@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 3000
 
 # React 개발 서버 실행
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

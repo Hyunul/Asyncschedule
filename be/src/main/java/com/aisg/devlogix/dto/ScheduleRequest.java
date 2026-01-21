@@ -18,4 +18,5 @@ public class ScheduleRequest {
     @NotBlank
     private String endDate;
     private String gubun; // null 일 수도 있음
+    private String group_id;
 }

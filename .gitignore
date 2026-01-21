@@ -83,6 +83,8 @@ $RECYCLE.BIN/
 
 ### Gradle ###
 .gradle
+be/.gradle/
+be/build/
 **/build/
 !src/**/build/
 

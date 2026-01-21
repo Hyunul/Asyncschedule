@@ -10,11 +10,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../hooks/api"; // axios 인스턴스
-import { JwtPayload } from "../utils/jwt";
 
 interface LoginResponse {
   accessToken: string;

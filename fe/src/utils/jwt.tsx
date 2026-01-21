@@ -17,8 +17,7 @@ export const getUserFromToken = (): string | null => {
   const token = localStorage.getItem("accessToken");
   if (!token) return null;
   try {
-    const { username, sub, exp } = jwtDecode<JwtPayload>(token);
-    if (exp * 1000 < Date.now()) return null;
+    const { username, sub } = jwtDecode<JwtPayload>(token);
     return username ?? sub ?? null;
   } catch {
     return null;

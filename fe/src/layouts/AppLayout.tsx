@@ -1,10 +1,17 @@
 // src/layouts/AppLayout.tsx
-import { Box } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Box, Container } from "@mui/material";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 export default function AppLayout() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <Box
       sx={{
@@ -16,9 +23,9 @@ export default function AppLayout() {
       <Header />
 
       {/* 페이지별 컨텐츠 영역 */}
-      <Box component="main" sx={{ flexGrow: 1, px: 2 }}>
+      <Container component="main" maxWidth="xl" sx={{ flexGrow: 1, py: 4 }}>
         <Outlet />              {/* 현재 라우트의 화면이 여기 들어감 */}
-      </Box>
+      </Container>
 
       <Footer />               {/* column 맨 아래 → “스티키” 푸터 */}
     </Box>

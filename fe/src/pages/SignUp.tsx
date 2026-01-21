@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../hooks/api";
+import { showAlert } from "../utils/swal";
 
 interface SignUpForm {
   email: string;
@@ -68,7 +69,7 @@ export default function SignUp() {
 
     try {
       await api.post("/api/auth/register", form);
-      alert("회원가입에 성공하였습니다.");
+      await showAlert("회원가입 성공", "회원가입에 성공하였습니다.", "success");
       navigate("/login", { replace: true });
     } catch (err: any) {
       const msg =

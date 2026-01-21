@@ -35,7 +35,7 @@ api.interceptors.request.use(
     const headers = (config.headers ||= {} as AxiosRequestHeaders);
 
     const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
+    if (accessToken && accessToken !== "null" && accessToken !== "undefined") {
       headers.Authorization = `Bearer ${accessToken}`;
     }
 

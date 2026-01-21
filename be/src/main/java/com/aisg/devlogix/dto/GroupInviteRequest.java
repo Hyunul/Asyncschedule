@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupInviteRequest {
-    private Long userId;   // 초대할 사용자 ID
-    private Long groupId;  // 초대할 그룹 ID
+    private String requester;  // 초대를 요청한 사람 (리더)
+    private String username;   // 초대할 사용자 이름
+    private String groupName;  // 초대할 그룹 이름
 }
